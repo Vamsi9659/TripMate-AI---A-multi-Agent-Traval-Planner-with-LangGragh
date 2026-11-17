@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>TripMate AI — Travel Planner</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="TripMate AI home"><span class="brand-mark">✦</span> TripMate <span>AI</span></a>
+    <div class="status"><span class="status-dot"></span> Multi-agent travel assistant</div>
+  </header>
+
+  <main class="layout">
+    <section class="intro">
+      <p class="eyebrow">YOUR AI TRAVEL COMPANION</p>
+      <h1>Plan a trip worth<br><span>remembering.</span></h1>
+      <p class="intro-copy">Tell TripMate where you want to go. Specialist AI agents can research flights, stays, weather and budgets, then prepare an itinerary for your approval.</p>
+      <div class="feature-row">
+        <span>✈ Flight research</span><span>⌂ Hotel research</span><span>☼ Weather</span><span>✓ Human approval</span>
+      </div>
+    </section>
+
+    <section class="planner card" aria-labelledby="planner-title">
+      <div class="card-heading">
+        <div><p class="eyebrow">LET'S GET STARTED</p><h2 id="planner-title">Where to next?</h2></div>
+        <span class="sparkle">✦</span>
+      </div>
+      <form id="travel-form">
+        <label for="message">Describe your trip</label>
+        <textarea id="message" name="message" rows="5" maxlength="4000" required placeholder="Plan a 5-day trip to Kyoto from Hyderabad for two people with a moderate budget..."></textarea>
+        <div class="date-grid">
+          <div><label for="departure-date">Departure date <small>(optional)</small></label><input id="departure-date" type="date"></div>
+          <div><label for="return-date">Return date <small>(optional)</small></label><input id="return-date" type="date"></div>
+        </div>
+        <button class="primary" id="submit-btn" type="submit">Create my travel plan <span>→</span></button>
+      </form>
+      <p class="disclaimer">TripMate provides research and planning suggestions. It does not book flights or hotels.</p>
+      <p id="error" class="error" role="alert" hidden></p>
+    </section>
+
+    <section id="result-section" class="result-section" hidden>
+      <div class="result-heading"><div><p class="eyebrow">YOUR TRAVEL WORKSPACE</p><h2>Trip plan</h2></div><span id="run-state" class="pill" role="status" aria-live="polite">In progress</span></div>
+      <article class="card result-card">
+        <div id="agent-list" class="agent-list"></div>
+        <div class="dashboard-grid">
+          <section class="dashboard-panel" aria-labelledby="overview-title">
+            <div class="section-heading"><h3 id="overview-title">Trip overview</h3></div>
+            <div class="table-scroll">
+              <table id="overview-table">
+                <thead><tr><th scope="col">Detail</th><th scope="col">Information</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="dashboard-panel itinerary-panel" aria-labelledby="itinerary-title">
+            <div class="section-heading"><h3 id="itinerary-title">Day-wise itinerary</h3></div>
+            <div class="table-scroll">
+              <table id="itinerary-table">
+                <thead><tr><th scope="col">Day</th><th scope="col">Time</th><th scope="col">Place</th><th scope="col">Activity / Description</th><th scope="col">Estimated Duration</th><th scope="col">Estimated Cost</th><th scope="col">Transportation</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="dashboard-panel" aria-labelledby="flights-title">
+            <div class="section-heading"><h3 id="flights-title">Flight details</h3></div>
+            <div class="table-scroll">
+              <table id="flight-table">
+                <thead><tr><th scope="col">Airline</th><th scope="col">Flight Number</th><th scope="col">Departure Airport / Time</th><th scope="col">Arrival Airport / Time</th><th scope="col">Duration</th><th scope="col">Stops</th><th scope="col">Status</th><th scope="col">Price</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <p id="flight-search" class="table-note"></p>
+          </section>
+
+          <section class="dashboard-panel" aria-labelledby="hotels-title">
+            <div class="section-heading"><h3 id="hotels-title">Hotel research</h3><span class="data-badge unverified">Unverified search results</span></div>
+            <div class="table-scroll">
+              <table id="hotel-table">
+                <thead><tr><th scope="col">Hotel Name</th><th scope="col">Location</th><th scope="col">Description</th><th scope="col">Rating</th><th scope="col">Price / Night</th><th scope="col">Source / Booking Link</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <p id="hotel-search" class="table-note"></p>
+            <p class="table-note">Tavily search observations do not verify property details, ratings, room availability, or prices.</p>
+          </section>
+
+          <section class="dashboard-panel" aria-labelledby="weather-title">
+            <div class="section-heading"><h3 id="weather-title">Travel-date weather</h3></div>
+            <div class="table-scroll">
+              <table id="weather-table">
+                <thead><tr><th scope="col">Date</th><th scope="col">Location</th><th scope="col">Minimum</th><th scope="col">Maximum</th><th scope="col">Condition</th><th scope="col">Rain probability</th><th scope="col">Humidity</th><th scope="col">Recommendation / Status</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <p class="table-note">Current conditions are not used as a travel-date forecast.</p>
+          </section>
+
+          <section class="dashboard-panel budget-panel" aria-labelledby="budget-title">
+            <div class="section-heading"><h3 id="budget-title">Budget summary</h3><span class="data-badge estimate">Estimates are not live prices</span></div>
+            <div class="table-scroll">
+              <table id="budget-table">
+                <thead><tr><th scope="col">Expense</th><th scope="col">Estimated Cost</th><th scope="col">Price Status / Notes</th></tr></thead>
+                <tbody></tbody>
+                <tfoot><tr class="budget-total"><th scope="row">Estimated Trip Budget</th><td id="budget-total">Not available</td><td id="budget-total-status">Estimated total unavailable until all categories have estimates.</td></tr></tfoot>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <details><summary>Original itinerary response</summary><pre id="answer"></pre></details>
+        <details><summary>Flight research details</summary><pre id="flight-results"></pre></details>
+        <details><summary>Hotel research details</summary><pre id="hotel-results"></pre></details>
+        <details><summary>Weather research details</summary><pre id="weather-results"></pre></details>
+        <details><summary>Budget research details</summary><pre id="budget-results"></pre></details>
+        <div id="approval-panel" class="approval-panel" hidden>
+          <h3>Review this draft</h3>
+          <p>The agents have prepared a draft. Approve it or request changes before finalizing.</p>
+          <label for="feedback">Revision feedback <small>(required if requesting changes)</small></label>
+          <textarea id="feedback" rows="3" placeholder="For example: reduce hotel costs and add one more cultural activity."></textarea>
+          <div class="button-row"><button id="revise-btn" class="secondary" type="button">Request changes</button><button id="approve-btn" class="primary" type="button">Approve plan ✓</button></div>
+        </div>
+        <div class="result-actions"><button id="copy-btn" class="secondary" type="button">Copy plan</button><button id="print-btn" class="secondary" type="button">Print / Save PDF</button></div>
+      </article>
+    </section>
+  </main>
+  <footer>TripMate AI · Multi-agent travel planning with LangGraph</footer>
+  <script src="{{ url_for('static', path='script.js') }}" defer></script>
+</body>
+</html>

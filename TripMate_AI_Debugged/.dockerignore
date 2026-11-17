@@ -1,0 +1,27 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+.git
+.github
+
+# Python environments and caches
+.venv
+venv
+env
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.coverage
+htmlcov
+
+# Local/editor artifacts
+.vscode
+.idea
+*.log
+*.excalidraw
+
+# Test and development artifacts
+tests
+backend_backup.py
